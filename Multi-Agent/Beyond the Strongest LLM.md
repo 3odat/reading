@@ -1,230 +1,194 @@
-# 📚 Literature Review — Per-Paper Summary
-
-## 🧭 1) Bibliographic Information
-
-* **Title:** Beyond the Strongest LLM: Multi-Turn Multi-Agent Orchestration vs. Single LLMs on Benchmarks
-* **Authors & Affiliations:** Aaron Xuxiang Tian (Independent Researcher); Ruofan Zhang (Independent Researcher); Jiayao Tang (Arizona State University); Young Min Cho (University of Pennsylvania); Xueqian Li (Gradient); Qiang Yi (Gradient); Ji Wang (Gradient); Zhunping Zhang (Nanyang Technological University); Danrui Qi (Simon Fraser University); Zekun Li (University of California, Santa Barbara); Xingyu Xiang (Dropbox); Sharath Chandra Guntuku (University of Pennsylvania); Lyle Ungar (University of Pennsylvania); Tianyu Shi (Gradient; co-corresponding); Chi Wang (Google DeepMind; corresponding)
-* **Year / Venue / DOI:** 2025 / arXiv (cs.AI) / — not specified —
-* **URL(s):** [https://arxiv.org/abs/2509.23537v2](https://arxiv.org/abs/2509.23537v2)
-* **Keywords (5–10):** multi-agent orchestration; consensus; voting; coordination strategies; herding; self-voting; GPQA-Diamond; IFEval; MuSR; LLM benchmarking
-* **Field / Subfield:** Artificial Intelligence / Multi-agent LLM coordination and evaluation
-* **Reference key (BibTeX/ID):** — not specified —
-
-### 1.a Figure/Table Inventory (global list)
-
-* [ ] “Table 1: Accuracy (%) on three benchmarks.” → 6. Results and Analysis → “Main comparison: orchestration vs. single-LLM baselines”
-* [ ] “Figure 1: Effect of coordination strategies on GPQA-Diamond.” → 6. Results and Analysis → “Ablation outcomes on identity disclosure and visible tallies”
-* [ ] “Table 2: Exact McNemar’s test p-values comparing orchestration with each LLM.” → 6. Results and Analysis → “Significance testing of paired accuracy differences”
-* [ ] “Table 3: Coverage of correct answers by participating agents under orchestration.” → 6. Results and Analysis → “Headroom analysis: cases where consensus failed despite correct agents”
+Here’s a full **literature review–style report** on the paper *“Beyond the Strongest LLM: Multi-Turn Multi-Agent Orchestration vs. Single LLMs on Benchmarks”*, integrated with how it fits your **multi-drone orchestration system**.
+All figure references (like *Figure 1*) correspond to names in the paper—you can insert the actual visuals later.
 
 ---
 
-## 🧩 2) Research Context (Background)
+# 🧭 Literature Review Report
 
-**Problem / Gap**
+## 1. Bibliographic Information
 
-* Single LLMs excel unevenly across tasks; it is unclear whether multi-turn, multi-agent orchestration consistently beats the strongest single model and how coordination design choices affect consensus quality.
-
-**Motivation / Significance**
-
-* Understanding when and how agent orchestration yields reliable gains informs practical systems that combine heterogeneous models for robust performance across diverse benchmarks.
-
-**Related work (2–6 items)**
-
-* Multi-agent debate/consensus mechanisms and orchestration frameworks (e.g., voting vs. consensus debate; orchestration via RL or blockchain-based robustness).
-* Benchmarks for advanced reasoning and instruction following (GPQA-Diamond, IFEval, MuSR).
-* Studies on sycophancy, herding, and coordination pathologies in agent collectives.
-
-**Limitations in prior art**
-
-* Sparse, systematic comparisons against *strong* single-LLM baselines.
-* Limited ablations isolating the effects of identity disclosure and vote-tally visibility on group dynamics.
-
-#### Figures/Tables placed here
-
-* None.
+**Title:** *Beyond the Strongest LLM: Multi-Turn Multi-Agent Orchestration vs. Single LLMs on Benchmarks*
+**Authors:** Aaron Xuxiang Tian et al. (2025)
+**Institutions:** Independent Research, Arizona State University, University of Pennsylvania, Gradient, Google DeepMind, and others.
+**Year / Venue:** 2025, arXiv preprint 2509.23537v2
+**Keywords:** Multi-Agent LLMs, Consensus Mechanisms, Orchestration Frameworks, Coordination Strategies, Multi-Turn Interaction
 
 ---
 
-## 💡 3) Research Question(s) or Hypotheses
+## 2. Research Context
 
-* **Primary question:** Does multi-turn multi-agent orchestration match or surpass the strongest single LLM across diverse benchmarks?
-* **Secondary objectives:** (i) Quantify how identity disclosure and vote-tally visibility shape self-voting, tie rates, and convergence; (ii) Measure the headroom between best-achievable outcomes (given agents’ candidate answers) and realized consensus.
-* **Explicit hypotheses (if any):** — not specified —
-* **Success/falsification criteria:** Higher or comparable accuracy versus the strongest single model; statistically significant differences via paired tests; clear behavioral shifts under strategy ablations.
+### 2.1 Problem / Gap
 
-#### Figures/Tables placed here
+Single LLMs perform **unevenly across tasks**, and there’s no clear understanding of whether **multi-turn, multi-agent orchestration** reliably outperforms even the strongest standalone model.
+The gap lies in **coordination design**—specifically, how revealing authorship or vote visibility shapes group consensus quality.
 
-* None.
+### 2.2 Motivation
 
----
-
-## ⚙️ 4) Methodology (Core of the Paper)
-
-**Study type:** Empirical benchmarking with coordination-strategy ablations.
-**Design:** Orchestration of four heterogeneous LLM agents over multiple turns with exclusive action choices (propose *or* vote), dynamic restarts on new proposals, and consensus via majority voting; final synthesis by the winning agent.
-
-### 4.1 Framework / Model Overview
-
-* Orchestrator coordinates agents ({a_i}) with per-agent state and a global coordination state.
-* **Exclusive action constraint:** At each step, an agent must **either** (i) cast a vote for an existing answer *or* (ii) generate a new answer—never both in the same step (formalized with mutual exclusivity conditions).
-* **Dynamic restart:** Any new answer invalidates current votes and triggers reevaluation with the updated candidate set.
-* **Consensus:** Majority vote over the latest answer set selects the “winning” agent; ties broken by configured order; the winner synthesizes the final response.
-* **Equations & formalism:**
-
-  * Valid response constraint enforcing one of {vote, new_answer}.
-  * Restart signal definition when any (N(a_i, c)) occurs.
-  * Winner selection via ( \arg\max ) over valid votes with indicators invalidating votes pending restart.
-  * (Purpose: define coordination rules, ensure exclusivity, and formalize consensus selection.)
-
-### 4.2 Data / Environment
-
-* **Benchmarks:** GPQA-Diamond (graduate-level, Google-proof multiple choice), IFEval (instruction following), MuSR (narrative reasoning; multiple choice).
-* **Agents/Models:** Gemini 2.5 Pro, GPT-5, Grok 4, Claude Sonnet 4 (heterogeneous ensemble).
-* **Ablations (on GPQA-Diamond):**
-
-  * **Identity disclosure:** Anonymous vs. Identified Voting.
-  * **Vote-tally visibility:** Hidden vs. Visible Tally (who voted for which answer + reasons).
-* **Agent memory:** Agents are memory-less across tasks (names anonymization in Anonymous setting renders voting identity-agnostic).
-
-### 4.3 Variables & Measures
-
-| Variable                  | Type       | Description                                                                      |
-| ------------------------- | ---------- | -------------------------------------------------------------------------------- |
-| Accuracy                  | Outcome    | Proportion of tasks solved correctly (per target: orchestration vs. single-LLM). |
-| Self-Voting Rate          | Behavioral | Fraction of votes an agent casts for its own answer.                             |
-| First-voted Selected Rate | Behavioral | Tasks where the first-voted answer becomes the final consensus.                  |
-| Consensus Tie Rate        | Behavioral | Fraction of tasks ending with no majority.                                       |
-| Best-achievable coverage  | Diagnostic | Fraction where ≥1 agent produced a correct answer (headroom).                    |
-
-### 4.4 Evaluation Metrics
-
-* Primary: Accuracy (%).
-* Statistical testing: Exact McNemar’s test for paired differences between orchestration and each single-LLM.
-
-### 4.5 Tools / Software / Hardware
-
-* LLM APIs for Gemini 2.5 Pro, GPT-5, Grok 4, Claude Sonnet 4; custom orchestration framework with **vote** and **new_answer** tools.
-* Hardware/compute details: — not specified —.
-
-#### Figures/Tables placed here
-
-* None.
+The study is motivated by the intuition that **collective reasoning among heterogeneous LLMs** (GPT-5, Gemini 2.5 Pro, Grok 4, Claude Sonnet 4) might combine complementary strengths. However, orchestration can also introduce **biases** like self-voting or herding, so rigorous comparison to single-model baselines is needed.
 
 ---
 
-## 🧠 5) Key Contributions (as claimed by authors)
+## 3. Research Questions
 
-* C1: Systematic evaluation of a multi-turn, multi-agent orchestration framework against strong single-LLM baselines across GPQA-Diamond, IFEval, and MuSR. *(Empirical/System)*
-* C2: Controlled ablations isolating identity disclosure and vote-tally visibility, revealing their quantitative impact on self-voting, tie rates, and convergence dynamics. *(Empirical)*
-* C3: Headroom analysis showing gaps where at least one agent was correct but consensus failed, highlighting coordination failure modes and opportunities. *(Empirical/Analysis)*
-
-#### Figures/Tables placed here
-
-* None.
+1. Does multi-agent orchestration consistently outperform single-model baselines?
+2. How do **coordination strategies** (identity visibility, vote transparency) affect group behavior and final accuracy?
+3. What coordination failures occur, and how much **“headroom”** remains between current orchestration and best-achievable results?
 
 ---
 
-## 📈 6) Results and Analysis
+## 4. Methods
 
-**Main findings (2–4 bullets)**
+### 4.1 Orchestration Framework
 
-* Orchestration **matches or exceeds** the strongest single LLM on two of three benchmarks and yields the best **average** accuracy (81.2%).
-* On GPQA-Diamond, at least one agent produced the correct answer in **95.5%** of cases, yet orchestration achieved **87.4%**, indicating substantial headroom.
-* Identity disclosure **increases self-voting** and **tie rates**; visible tallies **amplify herding**, raising the chance that the first-voted answer becomes final.
+The system coordinates agents through a **three-phase protocol**:
 
-**Comparisons (baselines & fairness)**
+1. **Agent Action:** Each agent either proposes a new answer or casts a vote. If a new answer appears, voting restarts (dynamic restart).
+2. **Consensus:** The answer with majority votes becomes the winner.
+3. **Final Presentation:** The winning agent synthesizes a unified final answer from all reasoning traces.
 
-* **Table 1:** Orchestration vs. single models (Accuracy %):
+### 4.2 Experiments
 
-  * GPQA-Diamond: Orchestration 87.4 vs. best single 85.9 (Gemini).
-  * IFEval: Orchestration 88.0 vs. best single 87.4 (GPT-5).
-  * MuSR: Orchestration 68.3 vs. best single 69.6 (Gemini).
-  * Average: Orchestration 81.2 vs. GPT-5 80.5; Grok 4 79.2; Gemini 73.8; Claude 64.9.
+Two experiments were run:
 
-**Statistical validity & robustness**
+* **(i)** Benchmark Comparison – multi-agent orchestration vs each LLM alone.
+* **(ii)** Coordination Ablations – varying authorship visibility and vote transparency on GPQA-Diamond.
 
-* **Table 2:** McNemar’s tests report paired p-values; many differences are small/non-significant vs. strongest model on some datasets, but orchestration significantly outperforms weaker models in places (e.g., vs. Claude on multiple benchmarks).
+### 4.3 Benchmarks
 
-**Limitations from results**
+| Benchmark        | Description                                  |
+| ---------------- | -------------------------------------------- |
+| **GPQA-Diamond** | Graduate-level scientific reasoning tasks.   |
+| **IFEval**       | Instruction-following evaluation.            |
+| **MuSR**         | Multi-step symbolic and narrative reasoning. |
 
-* **Table 3 / text:** Even when ≥1 (or ≥2) agents are correct, consensus can converge incorrectly (e.g., GPQA-Diamond: among errors, 64% had ≥1 correct agent; in 31% of those, ≥2 correct agents).
-* Visible tallies can improve convergence speed but risk **premature consensus** via herding; identified voting skews selection toward dominant models and raises ties.
+### 4.4 Coordination Variables
 
-### Key Numbers (optional)
+| Variable                  | Option 1                                   | Option 2                                              |
+| ------------------------- | ------------------------------------------ | ----------------------------------------------------- |
+| **Voting Identity**       | Anonymous (voters don’t know who authored) | Identified (voters see which model wrote each answer) |
+| **Vote Tally Visibility** | Hidden (votes unseen until end)            | Visible (agents see live votes)                       |
 
-| Metric                      |          Proposed | Best Baseline | Δ (abs) | Δ (%) | Notes                           |
-| --------------------------- | ----------------: | ------------: | ------: | ----: | ------------------------------- |
-| Accuracy (GPQA-Diamond)     |              87.4 |          85.9 |    +1.5 |  +1.7 | Beats Gemini 2.5 Pro            |
-| Accuracy (IFEval)           |              88.0 |          87.4 |    +0.6 |  +0.7 | Beats GPT-5                     |
-| Accuracy (MuSR)             |              68.3 |          69.6 |    −1.3 |  −1.9 | Slightly below Gemini           |
-| First-voted Selected (GPQA) |    67.8 (Visible) | 54.1 (Hidden) |   +13.7 |     — | Herding under visible tallies   |
-| Self-Voting (GPT-5, GPQA)   | 88.4 (Identified) |   81.0 (Anon) |    +7.4 |     — | Identity disclosure effect      |
-| Tie Rate (GPQA)             | 23.2 (Identified) |   14.1 (Anon) |    +9.1 |     — | More ties with identities shown |
-
-#### Figures/Tables placed here
-
-* “Table 1: Accuracy (%) on three benchmarks.”
-* “Figure 1: Effect of coordination strategies on GPQA-Diamond.”
-* “Table 2: Exact McNemar’s test p-values…”
-* “Table 3: Coverage of correct answers by participating agents…”
+Metrics: Accuracy, Self-Voting Rate, First-Voted Selected Rate, Consensus Tie Rate.
 
 ---
 
-## 🔍 7) Discussion / Insights
+## 5. Results and Discussion
 
-* **Field advancement:** Demonstrates that careful multi-agent orchestration can rival top single models while exposing design-sensitive dynamics (identity, visibility) that materially shape outcomes.
-* **Practical vs. statistical significance:** Small absolute accuracy gains over the strongest single model may be practically meaningful given stability across datasets; significance varies by pairwise comparison.
-* **Alternative explanations / threats to validity:** Gains may partially stem from model complementarity specific to the chosen four models/benchmarks; orchestration rules and tie-breaking may bias selections.
-* **Ethical/societal implications:** Transparency about identity/visibility can alter group behavior; design choices might entrench dominance of particular models or spur herding toward incorrect answers.
+### 5.1 Benchmark Performance (Table 1)
 
-#### Figures/Tables placed here
+| Model             | GPQA-Diamond | IFEval   | MuSR | Avg      |
+| ----------------- | ------------ | -------- | ---- | -------- |
+| Grok 4            | 85.4         | 84.7     | 67.6 | 79.2     |
+| GPT-5             | 84.8         | 87.4     | 69.2 | 80.5     |
+| Gemini 2.5 Pro    | 85.9         | 66.0     | 69.6 | 73.8     |
+| Claude Sonnet 4   | 68.2         | 63.6     | 62.8 | 64.9     |
+| **Orchestration** | **87.4**     | **88.0** | 68.3 | **81.2** |
 
-* None.
+➡ Orchestration **matches or slightly exceeds** the strongest single model, showing that cooperative reasoning can achieve elite performance without knowing beforehand which model is best.
 
----
+### 5.2 Coordination Effects (Figure 1)
 
-## 🧾 8) Critical Evaluation (Your Review)
+* **Identity Visible → Self-Voting ↑ + Ties ↑**
+  GPT-5’s self-vote rate rose 81 → 88 %; consensus ties 14 → 23 %.
+  → Authorship visibility induces ego bias and stalemates.
+* **Vote Visible → Herding ↑ (Faster but riskier)**
+  First-voted selected rate ↑ from 54 → 68 %; agents cited majority votes in reasoning.
+  → Quicker agreement but possible premature consensus.
 
-### 8.1 Ratings (1–5)
+### 5.3 Error Analysis (Table 3)
 
-| Criterion                      | Score | Comment                                                                             |
-| ------------------------------ | :---: | ----------------------------------------------------------------------------------- |
-| Novelty                        |   4   | Systematic head-to-head vs. strong single-LLMs + targeted ablations.                |
-| Technical soundness            |   4   | Clear formalism; appropriate paired tests; well-defined behavioral metrics.         |
-| Clarity / organization         |   4   | Clean separation of benchmarks vs. ablations; figures/tables support claims.        |
-| Reproducibility / transparency |   3   | Protocols described; exact prompts/agent configs and compute details are limited.   |
-| Impact / significance          |   4   | Timely evidence for orchestration as a viable alternative to single-model reliance. |
-| Ethics / safety                |   3   | Notes on herding/self-voting; broader risk analysis could be deeper.                |
-| Overall impression             |   4   | Strong, careful empirical study with actionable design insights.                    |
-
-### 8.2 Strengths
-
-* Cross-benchmark comparison against strong single models; not just weaker baselines.
-* Clear, minimal orchestration protocol enabling precise ablations.
-* Behavioral metrics (self-voting, tie rate, first-vote lock-in) reveal actionable levers.
-
-### 8.3 Weaknesses / Threats
-
-* Limited reporting on prompts, temperature, stopping rules, and system instructions per model.
-* Generalization beyond the three benchmarks and the four chosen models is untested.
-* Tie-breaking and restart heuristics might influence outcomes; alternative consensus rules not exhaustively compared.
-
-### 8.4 Replicability checklist
-
-* [ ] Code link & license
-* [ ] Data availability (task lists / splits used)
-* [ ] Configs/seeds/hyperparameters (sampling params, prompts)
-* [ ] Environment versions (model API dates, framework versions)
-* [ ] Scripts to reproduce figures/tables
+Even when at least one agent produced a correct answer (95.5 % of GPQA cases), orchestration reached only 87.4 %.
+Hence ~8 % performance gap = **coordination inefficiency**, not lack of knowledge.
 
 ---
 
-## 🚀 9) Key Takeaways & Future Directions
+## 6. Case Studies
 
-* **One-sentence takeaway:** Multi-turn multi-agent orchestration can meet or exceed top single-LLM performance, but coordination design (identity/tally visibility) crucially shapes correctness, ties, and herding.
-* **Top 3 insights:** 1) Orchestration achieves competitive or superior accuracy across benchmarks; 2) Identity disclosure raises self-voting and tie rates; 3) Visible tallies accelerate—and sometimes mislead—consensus via herding.
-* **Open questions:** How do alternative consensus rules (e.g., weighted voting, confidence calibration, Bayesian aggregation) compare? Can we algorithmically detect and mitigate premature herding? What is the effect of scaling agent diversity or adding smaller specialists?
-* **Follow-up actions:** Reproduce with released prompts/configs; test additional voting/aggregation schemes; probe robustness across more datasets and domain-specialized agents; quantify cost/latency trade-offs.
+### ✅ Success Case: *Self-Correction through Peer Observation*
+
+Claude Sonnet 4 initially mis-computed a cosmological distance (6 Gpc). After reviewing other agents’ answers, it revised to 8 Gpc → consensus correct.
+**Mechanism:** Discrepancy awareness → re-evaluation → self-correction.
+
+### ⚠️ Limitation Case: *Reasoning Quality > Correctness*
+
+Claude Sonnet 4 had the right answer but the group selected Gemini 2.5 Pro’s *plausible yet wrong* reasoning.
+**Mechanism:** Persuasive reasoning bias outweighing truth signal.
 
 ---
+
+## 7. Implications for Our Multi-Drone Orchestration System
+
+| LLM System Element                   | UAV System Analogue                                                 |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| **LLM Agents** (GPT-5, Gemini, etc.) | **Drone-1 & Drone-2 Agents** (each with own sensor and MAVSDK loop) |
+| **Orchestrator**                     | **Mission Supervisor Agent / Planner**                              |
+| **Voting or Consensus**              | **Fusion of detections & flight decisions**                         |
+| **Authorship Visibility**            | Whether each drone knows the other’s sensor origin                  |
+| **Vote Visibility**                  | Real-time sharing of decisions (e.g., target confirmation)          |
+
+### 7.1 Applying Their Multi-Turn Framework
+
+Your LangGraph system can directly implement their **three-phase protocol**:
+
+| Paper Phase            | Drone Analogue                             | LangGraph Implementation                 |
+| ---------------------- | ------------------------------------------ | ---------------------------------------- |
+| **Agent Action**       | Drones scan and report detections          | Each Drone subgraph (`plan→act→observe`) |
+| **Consensus**          | Supervisor merges telemetry and detections | `SupervisorNode` evaluates shared state  |
+| **Final Presentation** | Unified mission summary / confirmed target | Supervisor returns “consensus report”    |
+
+The **dynamic restart** in their algorithm maps naturally to *mission re-planning*:
+
+> if Drone-2 finds new object → Supervisor restarts decision loop for both agents.
+
+---
+
+## 8. Communication Dynamics (as per their design)
+
+* **Anonymous Mode:** Drones share raw detections only; supervisor decides consensus. → avoids bias.
+* **Identified Mode:** Each drone tags its results; supervisor can see which drone detected what. → may cause “self-voting” where a drone overtrusts its own data.
+* **Visible Voting:** Each drone sees real-time decisions (“Drone-1 confirmed target”). → fast agreement but possible herding.
+* **Hidden Voting:** Supervisor waits for both reports before final fusion → more robust but slower.
+
+LangGraph’s state sharing mechanism (`graph.update_state()` and shared memory stores) can implement all four variants.
+
+---
+
+## 9. Our System Alignment with the Paper’s Results
+
+| Aspect                    | Paper Findings                                   | Drone Application                                               |
+| ------------------------- | ------------------------------------------------ | --------------------------------------------------------------- |
+| **Performance**           | Orchestration matches or beats best single LLM   | Multi-drone collaboration should surpass solo flight efficiency |
+| **Coordination Strategy** | Identity & tally visibility alter bias and speed | Tune data visibility to balance speed vs robustness             |
+| **Dynamic Restart**       | New answers reset voting                         | New sensor detections trigger mission re-plan                   |
+| **Final Synthesis**       | Winning agent builds composite answer            | Supervisor merges detections into mission report                |
+
+Thus, their orchestration logic validates your **Supervisor → Drone-1 / Drone-2** LangGraph design as a **real-world instantiation of multi-turn LLM orchestration**.
+
+---
+
+## 10. Recommended Figures to Insert
+
+| Figure Name                | Description                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| **Table 1**                | Benchmark accuracies for orchestration vs single LLMs.                       |
+| **Figure 1**               | Effect of coordination strategies (Self-Voting, First-Voted Rate, Tie Rate). |
+| **Table 3**                | Correct agent coverage and wrong consensus percentages.                      |
+| **B.1 Figure (if exists)** | Success Case: Self-Correction Through Peer Observation.                      |
+| **B.2 Figure (if exists)** | Limitation Case: Analysis Quality Over Correctness.                          |
+
+---
+
+## 11. Conclusion
+
+The paper *“Beyond the Strongest LLM”* provides rigorous evidence that **multi-turn, multi-agent orchestration** can rival or exceed the strongest individual models, provided coordination is carefully designed.
+Their analysis of **identity and vote visibility** offers direct lessons for your UAV Supervisor system:
+
+* **Hidden-identity protocols** → fairer, less biased fusion.
+* **Visible tallies** → faster coordination but must avoid herding.
+* **Dynamic restarts** → ideal for adaptive mission re-planning.
+
+By implementing these insights through LangGraph, your **Supervisor + Drone-1/Drone-2** architecture becomes a **real-world analog** of LLM orchestration research—bridging **AI reasoning coordination** and **autonomous UAV collaboration**.
+
+---
+
+Would you like me to format this into a **publication-ready LaTeX or Word (.docx) report** with proper sections, table placeholders, and figure callouts so you can include it directly in your literature review document?
